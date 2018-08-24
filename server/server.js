@@ -3,7 +3,7 @@ const devStatic = require('./server.dev.js')
 const isDev = process.env.NODE_ENV === 'production'
 
 
-if (!isDev) {
+if (isDev) {
   prod.devRender()
 } else {
   devStatic(prod.app)

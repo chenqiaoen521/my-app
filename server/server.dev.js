@@ -20,28 +20,35 @@ const getTemplate = () => {
 const Module = module.constructor
 const serverCompiler = webpack(serverConfig)
 const mfs = new memoryFs()
-let serverBundle
+let serverBundle, createStoreMap
 serverCompiler.outputFileSystem = mfs
 serverCompiler.watch({}, (err, stats) => {
   if (err) {throw err}
   stats = stats.toJson()
-  stats.errors.forEach((err) => concole.error(err))
-  stats.warnings.forEach((warn) => concole.warn(warn))
+  stats.errors.forEach((err) => console.error(err))
+  stats.warnings.forEach((warn) => console.warn(warn))
 
   const bundlePath = path.join(serverConfig.output.path, serverConfig.output.filename)
   const bundle = mfs.readFileSync(bundlePath, 'utf-8')
   const m = new Module()
   m._compile(bundle, 'server-entry.js')
   serverBundle = m.exports.default
+  createStoreMap = m.exports.createStoreMap
 })
 
+
+const staticProxy = proxy('/static', { target: 'http://127.0.0.1:3000',changeOrigin: true });
+const wsProxy = proxy('/sockjs-node', { target: 'http://127.0.0.1:3000',changeOrigin: true });
 module.exports = function devStatic(app) {
-  app.use('/static', proxy({
-    target: 'http://localhost:3000'
-  }))
+  app.use('/static/*', staticProxy)
+  app.use('/sockjs-node/*', wsProxy)
 	app.get('*', function (req, res) {
+
+    const routerContext = {}
+    const app = serverBundle(createStoreMap(),routerContext,req.url)
+
     getTemplate().then(tem => {
-      const content = ReactDomServer.renderToString(serverBundle)
+      const content = ReactDomServer.renderToString(app)
       res.send(tem.replace('<app></app>', content))
     })
   })

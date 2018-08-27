@@ -7,16 +7,11 @@ import {AppState} from './store/store'
 import {Provider} from 'mobx-react';
 import {BrowserRouter} from 'react-router-dom';
 
-const appState = new AppState();
-setInterval(() => {
-  appState.add()
-}, 300)
-
 const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate
 const render = (Component) => {
   renderMethod(
     <AppContainer>
-      <Provider appState={appState}>
+      <Provider appStore={new AppState()}>
         <BrowserRouter>
           <Component />
         </BrowserRouter>

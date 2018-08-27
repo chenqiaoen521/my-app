@@ -4,7 +4,7 @@ import {StaticRouter} from 'react-router-dom';
 import {Provider, useStaticRendering} from 'mobx-react';
 export {createStoreMap} from './store/store';
 // mobx 不会重复数据变换
-useStaticRendering(true)
+useStaticRendering(true);
 
 export default (stores, routerContext, url) => (
     <Provider {...stores}>
@@ -12,4 +12,4 @@ export default (stores, routerContext, url) => (
         <App />
       </StaticRouter>
     </Provider>
-    )
+  );

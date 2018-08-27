@@ -5,6 +5,7 @@ const path = require('path')
 const ReactDomServer = require('react-dom/server')
 const serverConfig = require('../config/webpack.config.server')
 const proxy = require('http-proxy-middleware')
+const asyncBoot = require('react-async-bootstrapper').default
 // get template
 const getTemplate = () => {
   return new Promise((resolve, reject) => {
@@ -36,19 +37,25 @@ serverCompiler.watch({}, (err, stats) => {
   createStoreMap = m.exports.createStoreMap
 })
 
-
 const staticProxy = proxy('/static', { target: 'http://127.0.0.1:3000',changeOrigin: true });
-const wsProxy = proxy('/sockjs-node', { target: 'http://127.0.0.1:3000',changeOrigin: true });
+const wsProxy = proxy('/sockjs-node', { target: 'http://127.0.0.1:3000',changeOrigin: true , ws: true});
 module.exports = function devStatic(app) {
-  app.use('/static/*', staticProxy)
-  app.use('/sockjs-node/*', wsProxy)
+  app.use('/static', staticProxy)
+  app.use('/sockjs-node', wsProxy)
 	app.get('*', function (req, res) {
-
-    const routerContext = {}
-    const app = serverBundle(createStoreMap(),routerContext,req.url)
-
     getTemplate().then(tem => {
+      const routerContext = {}
+      const app = serverBundle(createStoreMap(),routerContext,req.url)
+      /*asyncBoot(app).then(() => {
+        
+      })*/
       const content = ReactDomServer.renderToString(app)
+      if (routerContext.url) {
+        res.status(302).setHeader('Location', routerContext.url);
+        res.end();
+        return;
+      }
+      
       res.send(tem.replace('<app></app>', content))
     })
   })

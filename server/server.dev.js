@@ -5,7 +5,7 @@ const path = require('path')
 const ReactDomServer = require('react-dom/server')
 const serverConfig = require('../config/webpack.config.server')
 const proxy = require('http-proxy-middleware')
-const asyncBoot = require('react-async-bootstrapper').default
+const bootstrapper = require('react-async-bootstrapper')
 // get template
 const getTemplate = () => {
   return new Promise((resolve, reject) => {
@@ -45,18 +45,19 @@ module.exports = function devStatic(app) {
 	app.get('*', function (req, res) {
     getTemplate().then(tem => {
       const routerContext = {}
-      const app = serverBundle(createStoreMap(),routerContext,req.url)
-      /*asyncBoot(app).then(() => {
-        
-      })*/
-      const content = ReactDomServer.renderToString(app)
-      if (routerContext.url) {
-        res.status(302).setHeader('Location', routerContext.url);
-        res.end();
-        return;
-      }
-      
-      res.send(tem.replace('<app></app>', content))
+      const stores = createStoreMap()
+      const app = serverBundle(stores,routerContext,req.url)
+      bootstrapper(app).then(() => {
+        if (routerContext.url) {
+          res.status(302).setHeader('Location', routerContext.url);
+          res.end();
+          return;
+        }
+        console.log('stores='+stores.appStore.count)
+        const content = ReactDomServer.renderToString(app)
+
+        res.send(tem.replace('<app></app>', content))
+      })
     })
   })
 }

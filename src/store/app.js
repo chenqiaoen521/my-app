@@ -9,5 +9,11 @@ export default class AppState {
   @action add () {
     this.count ++;
   }
+  toJson () {
+  	return {
+  		count: this.count,
+  		name: this.name
+  	}
+  }
 }
 

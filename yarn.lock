@@ -5560,6 +5560,12 @@ rc@^1.0.1, rc@^1.1.6, rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-async-bootstrapper@^2.1.1:
+  version "2.1.1"
+  resolved "http://registry.npm.taobao.org/react-async-bootstrapper/download/react-async-bootstrapper-2.1.1.tgz#8bc4115108e2ce6ba5771850a6814980599e09f2"
+  dependencies:
+    react-tree-walker "^4.2.0"
+
 react-dev-utils@^5.0.2:
   version "5.0.2"
   resolved "http://registry.npm.taobao.org/react-dev-utils/download/react-dev-utils-5.0.2.tgz#7bb68d2c4f6ffe7ed1184c5b0124fcad692774d2"
@@ -5633,6 +5639,10 @@ react-router@^4.3.1:
     path-to-regexp "^1.7.0"
     prop-types "^15.6.1"
     warning "^4.0.1"
+
+react-tree-walker@^4.2.0:
+  version "4.3.0"
+  resolved "http://registry.npm.taobao.org/react-tree-walker/download/react-tree-walker-4.3.0.tgz#b7cae498cebb490281e9e99a01bdb9c6b4926cd3"
 
 react@^16.3.2:
   version "16.4.2"
@@ -7014,7 +7024,7 @@ whatwg-encoding@^1.0.1:
   dependencies:
     iconv-lite "0.4.23"
 
-whatwg-fetch@>=0.10.0, whatwg-fetch@^2.0.3:
+whatwg-fetch@>=0.10.0, whatwg-fetch@^2.0.4:
   version "2.0.4"
   resolved "http://registry.npm.taobao.org/whatwg-fetch/download/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
 

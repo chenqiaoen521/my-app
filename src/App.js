@@ -16,10 +16,22 @@ class App extends Component {
   render() {
     return (
       <Switch>
-        <Route path="/" extra component={Home} />
+        <Route path="/main"  component={Home} />
+        <Redirect from="/" to="/main" />
       </Switch>
     );
   }
 }
 
 export default App;
+
+
+
+var a = {
+  name: 'aaa',
+  getName: function () {
+    return () => {
+      console.log(this.name)
+    }
+  }
+}

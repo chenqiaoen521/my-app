@@ -16,14 +16,36 @@ const getTemplate = () => {
      .catch(reject)
   })
 }
+// store
+const getStoreState = (stores) => {
+  return Object.keys(stores).reduce((result, storeName) => {
+    result[storeName] = result[storeName].toJson()
+  })
+}
+
+//新编译
+const NativeModule = require('module')
+const vm = require('vm')
+const getModuleFromString = (bundle, filename) => {
+  const m = {exports: {}}
+  const wrapper = NativeModule.wrap(bundle)
+  const script = new vm.Script(wrapper, {
+    filename,
+    displayErrors: true
+  })
+  const result = script.runInThisContext()
+  result.call(m.exports, m.exports, require, m)
+  return m
+}
 
 // 编译
-const Module = module.constructor
+//const Module = module.constructor
 const serverCompiler = webpack(serverConfig)
 const mfs = new memoryFs()
 let serverBundle, createStoreMap
 serverCompiler.outputFileSystem = mfs
 serverCompiler.watch({}, (err, stats) => {
+  console.log('==============comiiler==============')
   if (err) {throw err}
   stats = stats.toJson()
   stats.errors.forEach((err) => console.error(err))
@@ -31,8 +53,9 @@ serverCompiler.watch({}, (err, stats) => {
 
   const bundlePath = path.join(serverConfig.output.path, serverConfig.output.filename)
   const bundle = mfs.readFileSync(bundlePath, 'utf-8')
-  const m = new Module()
-  m._compile(bundle, 'server-entry.js')
+  //const m = new Module()
+  //m._compile(bundle, 'server-entry.js')
+  const m = getModuleFromString(bundle, 'server-entry.js')
   serverBundle = m.exports.default
   createStoreMap = m.exports.createStoreMap
 })
@@ -54,6 +77,7 @@ module.exports = function devStatic(app) {
           return;
         }
         console.log('stores='+stores.appStore.count)
+        const state = getStoreState(stores)
         const content = ReactDomServer.renderToString(app)
 
         res.send(tem.replace('<app></app>', content))

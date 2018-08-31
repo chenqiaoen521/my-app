@@ -7,11 +7,13 @@ import {AppState} from './store/store'
 import {Provider} from 'mobx-react';
 import {BrowserRouter} from 'react-router-dom';
 
+const initialState = window.__INITIAL__STATE__ || {}
+
 const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate
 const render = (Component) => {
   renderMethod(
     <AppContainer>
-      <Provider appStore={new AppState()}>
+      <Provider appStore={new AppState(initialState.appStore)}>
         <BrowserRouter>
           <Component />
         </BrowserRouter>

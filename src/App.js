@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {BrowserRouter, Switch, Route, Link, Redirect} from 'react-router-dom';
+import {Switch, Route, Redirect} from 'react-router-dom';
 import Home from './Home'
 import {observer, inject} from 'mobx-react';
 
@@ -17,21 +17,9 @@ class App extends Component {
     return (
       <Switch>
         <Route path="/main"  component={Home} />
-        <Redirect from="/" to="/main" />
+        <Redirect exact from="/" to="/main" />
       </Switch>
     );
   }
 }
-
 export default App;
-
-
-
-var a = {
-  name: 'aaa',
-  getName: function () {
-    return () => {
-      console.log(this.name)
-    }
-  }
-}

@@ -1,15 +1,19 @@
 const axios = require('axios')
 const webpack = require('webpack')
 const memoryFs = require('memory-fs')
+const Helmet = require('react-helmet').default
 const path = require('path')
+const serialize = require('serialize-javascript')
 const ReactDomServer = require('react-dom/server')
 const serverConfig = require('../config/webpack.config.server')
 const proxy = require('http-proxy-middleware')
 const bootstrapper = require('react-async-bootstrapper')
+const ejs = require('ejs')
+const serverRender = require('./server.render')
 // get template
 const getTemplate = () => {
   return new Promise((resolve, reject) => {
-    axios.get('http://localhost:3000')
+    axios.get('http://localhost:3000/server.ejs')
      .then(res => {
        resolve(res.data)
      })
@@ -18,8 +22,8 @@ const getTemplate = () => {
 }
 // store
 const getStoreState = (stores) => {
-  return Object.keys(stores).reduce((result, storeName) => {
-    result[storeName] = result[storeName].toJson()
+  return Object.keys(stores).map((item,i) => {
+    return {[item]: stores[item].toJson()}
   })
 }
 
@@ -56,8 +60,9 @@ serverCompiler.watch({}, (err, stats) => {
   //const m = new Module()
   //m._compile(bundle, 'server-entry.js')
   const m = getModuleFromString(bundle, 'server-entry.js')
-  serverBundle = m.exports.default
-  createStoreMap = m.exports.createStoreMap
+  serverBundle = m
+  //serverBundle = m.exports.default
+  //createStoreMap = m.exports.createStoreMap
 })
 
 const staticProxy = proxy('/static', { target: 'http://127.0.0.1:3000',changeOrigin: true });
@@ -65,9 +70,11 @@ const wsProxy = proxy('/sockjs-node', { target: 'http://127.0.0.1:3000',changeOr
 module.exports = function devStatic(app) {
   app.use('/static', staticProxy)
   app.use('/sockjs-node', wsProxy)
-	app.get('*', function (req, res) {
+	app.get('*', function (req, res, next) {
     getTemplate().then(tem => {
-      const routerContext = {}
+      serverRender(serverBundle.exports, tem, req, res)
+      .catch(next)
+      /*const routerContext = {}
       const stores = createStoreMap()
       const app = serverBundle(stores,routerContext,req.url)
       bootstrapper(app).then(() => {
@@ -76,12 +83,19 @@ module.exports = function devStatic(app) {
           res.end();
           return;
         }
-        console.log('stores='+stores.appStore.count)
-        const state = getStoreState(stores)
+        const state =getStoreState(stores)[0]
         const content = ReactDomServer.renderToString(app)
-
-        res.send(tem.replace('<app></app>', content))
-      })
+        console.log('state=='+ state)
+        const helmet = Helmet.rewind()
+        const html = ejs.render(tem, {
+          appString: content,
+          initialState: serialize(state),
+          meta: helmet.meta.toString(),
+          title: helmet.title.toString(),
+        })
+        res.send(html)
+        // res.send(tem.replace('<app></app>', content))
+      })*/
     })
   })
 }

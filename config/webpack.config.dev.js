@@ -224,6 +224,11 @@ module.exports = {
       inject: true,
       template: paths.appHtml,
     }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: '!!ejs-compiled-loader!' + paths.appSSRHtml,
+      filename: 'server.ejs'
+    }),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin(),
     // Makes some environment variables available to the JS code, for example:

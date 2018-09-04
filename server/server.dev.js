@@ -1,15 +1,10 @@
 const axios = require('axios')
 const webpack = require('webpack')
 const memoryFs = require('memory-fs')
-const Helmet = require('react-helmet').default
 const path = require('path')
-const serialize = require('serialize-javascript')
-const ReactDomServer = require('react-dom/server')
 const serverConfig = require('../config/webpack.config.server')
-const proxy = require('http-proxy-middleware')
-const bootstrapper = require('react-async-bootstrapper')
-const ejs = require('ejs')
 const serverRender = require('./server.render')
+const proxy = require('http-proxy-middleware')
 // get template
 const getTemplate = () => {
   return new Promise((resolve, reject) => {
@@ -20,13 +15,6 @@ const getTemplate = () => {
      .catch(reject)
   })
 }
-// store
-const getStoreState = (stores) => {
-  return Object.keys(stores).map((item,i) => {
-    return {[item]: stores[item].toJson()}
-  })
-}
-
 //新编译
 const NativeModule = require('module')
 const vm = require('vm')
@@ -65,12 +53,15 @@ serverCompiler.watch({}, (err, stats) => {
   //createStoreMap = m.exports.createStoreMap
 })
 
-const staticProxy = proxy('/static', { target: 'http://127.0.0.1:3000',changeOrigin: true });
-const wsProxy = proxy('/sockjs-node', { target: 'http://127.0.0.1:3000',changeOrigin: true , ws: true});
 module.exports = function devStatic(app) {
+  //proxy
+  const staticProxy = proxy('/static', { target: 'http://127.0.0.1:3000',changeOrigin: true });
+  const wsProxy = proxy('/sockjs-node', { target: 'http://127.0.0.1:3000',changeOrigin: true , ws: true});
+
   app.use('/static', staticProxy)
   app.use('/sockjs-node', wsProxy)
 	app.get('*', function (req, res, next) {
+    if(!serverBundle || !serverBundle.exports) return
     getTemplate().then(tem => {
       serverRender(serverBundle.exports, tem, req, res)
       .catch(next)

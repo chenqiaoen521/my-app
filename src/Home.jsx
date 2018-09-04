@@ -5,6 +5,14 @@ import './App.css';
 import {observer, inject} from 'mobx-react';
 @inject('appStore') @observer
 class App extends Component {
+  bootstrap() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.props.appStore.count = 30
+        resolve(true)
+      }, 3000)
+    })
+  }
   render() {
     return (
       <div className="App">
@@ -21,6 +29,9 @@ class App extends Component {
         </p>
         <p>
           {this.props.appStore.count}
+        </p>
+        <p>
+          {this.props.appStore.name}
         </p>
         <button onClick={()=>{this.props.appStore.count ++}}></button>
       </div>

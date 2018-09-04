@@ -1,6 +1,4 @@
 'use strict';
-process.env.BABEL_ENV = 'development';
-process.env.NODE_ENV = 'development';
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
@@ -50,7 +48,6 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
-console.log('publicPath='+publicPath)
 module.exports = {
   target: 'node',
   // Don't attempt to continue if there are any errors.
@@ -66,7 +63,7 @@ module.exports = {
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'server-entry.js',
+    filename: '../server-entry.js',
     chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
     libraryTarget: 'commonjs2',
     publicPath: publicPath,

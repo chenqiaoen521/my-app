@@ -1,6 +1,4 @@
 'use strict';
-process.env.BABEL_ENV = 'production';
-process.env.NODE_ENV = 'production';
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
@@ -68,6 +66,7 @@ module.exports = {
     filename: 'server-entry.js',
     chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
     libraryTarget: 'commonjs2',
+    publicPath: publicPath,
     // We inferred the "public path" (such as / or /my-project) from homepage.
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: info =>
@@ -75,6 +74,7 @@ module.exports = {
         .relative(paths.appSrc, info.absoluteResourcePath)
         .replace(/\\/g, '/'),
   },
+  externals: Object.keys(require('../package.json').dependencies),
   resolve: {
     // This allows you to set a fallback for where Webpack should look for modules.
     // We placed these paths second because we want `node_modules` to "win"
@@ -246,18 +246,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       inject: true,
       template: paths.appHtml,
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        minifyCSS: true,
-        minifyURLs: true,
-      },
     }),
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
@@ -265,7 +253,7 @@ module.exports = {
     // Otherwise React will be compiled in the very slow development mode.
     new webpack.DefinePlugin(env.stringified),
     // Minify the code.
-    new webpack.optimize.UglifyJsPlugin({
+    /*new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false,
         // Disabled because of an issue with Uglify breaking seemingly valid code:
@@ -284,7 +272,7 @@ module.exports = {
         ascii_only: true,
       },
       sourceMap: shouldUseSourceMap,
-    }),
+    }),*/
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
     new ExtractTextPlugin({
       filename: cssFilename,

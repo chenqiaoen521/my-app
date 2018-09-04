@@ -1,13 +1,30 @@
+//process.env.BABEL_ENV = 'production';
+//process.env.NODE_ENV = 'production';
+
+process.env.NODE_ENV = 'development'
+process.env.BABEL_ENV = 'development'
 const prod = require('./server.prod.js')
 const devStatic = require('./server.dev.js')
 const isDev = process.env.NODE_ENV === 'production'
-
+const express = require('express')
+const app = express()
 
 if (isDev) {
-  prod.devRender()
+  console.log('===== production =====')
+  prod(app, express)
 } else {
-  devStatic(prod.app)
+  console.log('===== development =====')
+  devStatic(app)
 }
-prod.app.listen(3333, function () {
+
+app.use(function (err, req, res, next) {
+	if(err) {
+    res.status(500).send(err)
+  } else {
+    next()
+  }
+})
+
+app.listen(3333, function () {
   console.log('server is listening on 3333')
 })

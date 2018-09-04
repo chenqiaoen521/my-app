@@ -1,4 +1,3 @@
-const proxy = require('http-proxy-middleware')
 const bootstrapper = require('react-async-bootstrapper')
 const Helmet = require('react-helmet').default
 const serialize = require('serialize-javascript')
@@ -7,9 +6,10 @@ const ejs = require('ejs')
 
 // store
 const getStoreState = (stores) => {
-  return Object.keys(stores).map((item,i) => {
-    return {[item]: stores[item].toJson()}
-  })
+  return Object.keys(stores).reduce((item,i) => {
+    item[i] = stores[i].toJson()
+    return item
+  }, {})
 }
 
 module.exports = (bundle, tem, req, res) => {
@@ -24,7 +24,7 @@ module.exports = (bundle, tem, req, res) => {
         res.end();
         return;
       }
-      const state =getStoreState(stores)[0]
+      const state =getStoreState(stores)
       const content = ReactDomServer.renderToString(app)
       console.log('state=='+ state)
       const helmet = Helmet.rewind()
